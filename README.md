@@ -4,28 +4,31 @@
 Welcome to CODE-A-പൂക്കളം, a creative coding challenge scheduled from September 1–6, where tradition meets technology! 🌼
 
 
-### Your Details
-- [Name] - [Branch] - [Semester]
+### Your Details -
+Lakshmi Sankar M P
+S3 IT
+
 
 
 
 ### Hosted Pookalam Link
 
-
+https://code-a-pookalam-puce.vercel.app/
 
 ### Pookalam Description
-Brief description about your pookalam. What makes it special and different.
+
+A digital pookalam generator where users can draw a pattern, choose colors from a palette, and instantly generate a vibrant pookalam design on the right side of the screen.
+
 
 
 
 ### Technologies Used 
-
-
-### Video explaining How you build the pookalam
+HTML,CSS,JAVASCRIPT
 
 
 
 ### Screenshots
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/47db7913-02ad-495b-8606-b0229d6f9d24" />
 
 
 
