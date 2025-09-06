@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pookalam Designer - Draw & Generate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: rgb(91, 22, 10);
+             min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: rgb(11, 0, 0);
+            text-shadow: 2px 2px 4px rgba(1, 1, 1, 0.997);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #c8de21, #e1ec1b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: rgba(74, 25, 25, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .right-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .canvas-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .canvas-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ecf804;
+            margin-bottom: 15px;
+        }
+
+        #drawingCanvas {
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            cursor: crosshair;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tools-section {
+            margin-bottom: 20px;
+        }
+
+        .tools-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e6f607;
+            margin-bottom: 15px;
+        }
+
+        .brush-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pattern-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pattern-tool {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+        }
+
+        .pattern-tool:hover {
+            border-color: #4ecdc4;
+            transform: scale(1.05);
+        }
+
+        .pattern-tool.selected {
+            border-color: #13de00;
+            background: #7cdd1a;
+            color: rgb(255, 255, 255);
+        }
+
+        .brush-size {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brush-size label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .brush-size input {
+            width: 100px;
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #d1f313f5, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .color-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.2);
+        }
+
+        .color-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .generate-section {
+            text-align: center;
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #f0e916, #0aaa22);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .pookalam-display {
+            text-align: center;
+        }
+
+        .pookalam-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e4f007;
+            margin-bottom: 20px;
+        }
+
+        .pookalam-container {
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+            position: relative;
+            background: radial-gradient(circle, #fff 0%, #f0f0f0 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .pookalam-element {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+
+        .flower-petal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50% 0;
+            transform-origin: center;
+        }
+
+        .flower-center {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffd700;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .instructions {
+            background: rgba(243, 231, 9, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .instructions h3 {
+            color: #0d0d0d;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #0a0a0a;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            #drawingCanvas {
+                width: 100%;
+                height: 300px;
+            }
+            
+            .pookalam-container {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌸 Pookalam Designer 🌸</h1>
+        <p>Draw your design and watch it come to life!</p>
+    </div>
+
+    <div class="container">
+        <!-- Left Panel - Drawing Canvas -->
+        <div class="left-panel">
+            <div class="canvas-container">
+                <div class="canvas-title">Draw Your Pookalam Design</div>
+                <canvas id="drawingCanvas" width="400" height="400"></canvas>
+            </div>
+
+            <div class="tools-section">
+                <div class="tools-title">Drawing Tools</div>
+                <div class="pattern-tools">
+                    <div class="pattern-tool selected" data-tool="brush" title="Freehand Brush">✏️</div>
+                    <div class="pattern-tool" data-tool="circle" title="Circle">⭕</div>
+                    <div class="pattern-tool" data-tool="square" title="Square">⬜</div>
+                    <div class="pattern-tool" data-tool="rectangle" title="Rectangle">▬</div>
+                    <div class="pattern-tool" data-tool="triangle" title="Triangle">🔺</div>
+                    <div class="pattern-tool" data-tool="diamond" title="Diamond">💎</div>
+                </div>
+                <div class="brush-controls">
+                    <div class="brush-size">
+                        <label for="brushSize">Size:</label>
+                        <input type="range" id="brushSize" min="5" max="50" value="20">
+                        <span id="brushSizeValue">20</span>
+                    </div>
+                    <button class="clear-btn" onclick="clearCanvas()">Clear Canvas</button>
+                </div>
+            </div>
+
+            <div class="tools-section">
+                <div class="tools-title">Color Palette</div>
+                <div class="color-palette">
+                    <div class="color-option selected" data-color="#ff6b6b" style="background-color: #ff6b6b;"></div>
+                    <div class="color-option" data-color="#4ecdc4" style="background-color: #4ecdc4;"></div>
+                    <div class="color-option" data-color="#45b7d1" style="background-color: #45b7d1;"></div>
+                    <div class="color-option" data-color="#96ceb4" style="background-color: #96ceb4;"></div>
+                    <div class="color-option" data-color="#feca57" style="background-color: #feca57;"></div>
+                    <div class="color-option" data-color="#ff9ff3" style="background-color: #ff9ff3;"></div>
+                    <div class="color-option" data-color="#54a0ff" style="background-color: #54a0ff;"></div>
+                    <div class="color-option" data-color="#5f27cd" style="background-color: #5f27cd;"></div>
+                    <div class="color-option" data-color="#ff4757" style="background-color: #ff4757;"></div>
+                    <div class="color-option" data-color="#2ed573" style="background-color: #2ed573;"></div>
+                    <div class="color-option" data-color="#ffa502" style="background-color: #ffa502;"></div>
+                    <div class="color-option" data-color="#ff6348" style="background-color: #ff6348;"></div>
+                </div>
+            </div>
+
+            <div class="generate-section">
+                <button class="generate-btn" onclick="generatePookalam()">Generate Pookalam</button>
+            </div>
+        </div>
+
+        <!-- Right Panel - Pookalam Display -->
+        <div class="right-panel">
+            <div class="pookalam-display">
+                <div class="pookalam-title">Your Pookalam</div>
+                <div class="pookalam-container" id="pookalamContainer">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #999; font-size: 1.2rem;">
+                        Draw on the left to see your Pookalam here
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>How to Use:</h3>
+        <p>1. Draw your Pookalam design on the left canvas using different colors<br>
+        2. Adjust brush size as needed<br>
+        3. Select colors from the palette below<br>
+        4. Click "Generate Pookalam" to see your design come to life on the right!</p>
+    </div>
+
+    <script>
+        // Canvas drawing functionality
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const brushSizeSlider = document.getElementById('brushSize');
+        const brushSizeValue = document.getElementById('brushSizeValue');
+        
+        let isDrawing = false;
+        let currentColor = '#ff6b6b';
+        let currentBrushSize = 20;
+        let currentTool = 'brush';
+        let startX = 0;
+        let startY = 0;
+        
+        // Initialize canvas
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Brush size control
+        brushSizeSlider.addEventListener('input', function() {
+            currentBrushSize = this.value;
+            brushSizeValue.textContent = this.value;
+        });
+        
+        // Color selection
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                currentColor = this.dataset.color;
+            });
+        });
+
+        // Pattern tool selection
+        document.querySelectorAll('.pattern-tool').forEach(tool => {
+            tool.addEventListener('click', function() {
+                document.querySelectorAll('.pattern-tool').forEach(t => t.classList.remove('selected'));
+                this.classList.add('selected');
+                currentTool = this.dataset.tool;
+            });
+        });
+        
+        // Drawing events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', handleTouch);
+        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchend', stopDrawing);
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            
+            if (currentTool === 'brush') {
+                draw(e);
+            }
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = currentColor;
+            
+            if (currentTool === 'brush') {
+                ctx.beginPath();
+                ctx.arc(x, y, currentBrushSize / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function stopDrawing(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+            
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = currentColor;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = 2;
+            
+            switch (currentTool) {
+                case 'circle':
+                    drawCircle(startX, startY, endX, endY);
+                    break;
+                case 'square':
+                    drawSquare(startX, startY, endX, endY);
+                    break;
+                case 'rectangle':
+                    drawRectangle(startX, startY, endX, endY);
+                    break;
+                case 'triangle':
+                    drawTriangle(startX, startY, endX, endY);
+                    break;
+                case 'diamond':
+                    drawDiamond(startX, startY, endX, endY);
+                    break;
+            }
+            
+            isDrawing = false;
+        }
+        
+        function drawCircle(x1, y1, x2, y2) {
+            const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            ctx.beginPath();
+            ctx.arc(x1, y1, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawSquare(x1, y1, x2, y2) {
+            const size = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
+            const x = x1 < x2 ? x1 : x1 - size;
+            const y = y1 < y2 ? y1 : y1 - size;
+            ctx.fillRect(x, y, size, size);
+        }
+        
+        function drawRectangle(x1, y1, x2, y2) {
+            const width = Math.abs(x2 - x1);
+            const height = Math.abs(y2 - y1);
+            const x = Math.min(x1, x2);
+            const y = Math.min(y1, y2);
+            ctx.fillRect(x, y, width, height);
+        }
+        
+        function drawTriangle(x1, y1, x2, y2) {
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+            const size = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - size);
+            ctx.lineTo(centerX - size, centerY + size);
+            ctx.lineTo(centerX + size, centerY + size);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function drawDiamond(x1, y1, x2, y2) {
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+            const width = Math.abs(x2 - x1) / 2;
+            const height = Math.abs(y2 - y1) / 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - height);
+            ctx.lineTo(centerX + width, centerY);
+            ctx.lineTo(centerX, centerY + height);
+            ctx.lineTo(centerX - width, centerY);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                            e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+        
+        function clearCanvas() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function generatePookalam() {
+            const pookalamContainer = document.getElementById('pookalamContainer');
+            pookalamContainer.innerHTML = '';
+            
+            // Get canvas image data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // Analyze the drawing and create Pookalam elements
+            const elements = analyzeDrawing(data, canvas.width, canvas.height);
+            
+            // Generate Pookalam based on analysis
+            elements.forEach((element, index) => {
+                const flowerElement = createFlower(element.x * 400 / canvas.width, element.y * 400 / canvas.height, element.color, element.size);
+                flowerElement.style.opacity = '0';
+                flowerElement.style.transition = 'opacity 0.5s ease';
+                
+                pookalamContainer.appendChild(flowerElement);
+                
+                // Animate appearance
+                setTimeout(() => {
+                    flowerElement.style.opacity = '1';
+                }, index * 50);
+            });
+            
+            // Add decorative elements
+            addDecorativeElements();
+        }
+        
+        function analyzeDrawing(data, width, height) {
+            const elements = [];
+            const step = 20; // Sample every 20 pixels
+            
+            for (let y = 0; y < height; y += step) {
+                for (let x = 0; x < width; x += step) {
+                    const index = (y * width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const a = data[index + 3];
+                    
+                    // If pixel is not white (has color)
+                    if (a > 0 && !(r > 240 && g > 240 && b > 240)) {
+                        const color = `rgb(${r}, ${g}, ${b})`;
+                        const size = 15 + Math.random() * 10;
+                        
+                        elements.push({
+                            x: x,
+                            y: y,
+                            color: color,
+                            size: size
+                        });
+                    }
+                }
+            }
+            
+            return elements;
+        }
+        
+        function createFlower(x, y, color, size) {
+            const flowerContainer = document.createElement('div');
+            flowerContainer.className = 'pookalam-element';
+            flowerContainer.style.left = x + 'px';
+            flowerContainer.style.top = y + 'px';
+            flowerContainer.style.width = size + 'px';
+            flowerContainer.style.height = size + 'px';
+            
+            // Create 5 petals for each flower
+            for (let i = 0; i < 5; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'flower-petal';
+                petal.style.backgroundColor = color;
+                petal.style.width = (size * 0.8) + 'px';
+                petal.style.height = (size * 0.8) + 'px';
+                petal.style.left = '50%';
+                petal.style.top = '50%';
+                petal.style.transform = `translate(-50%, -50%) rotate(${i * 72}deg)`;
+                petal.style.opacity = '0.9';
+                
+                flowerContainer.appendChild(petal);
+            }
+            
+            // Add flower center
+            const center = document.createElement('div');
+            center.className = 'flower-center';
+            center.style.width = (size * 0.3) + 'px';
+            center.style.height = (size * 0.3) + 'px';
+            flowerContainer.appendChild(center);
+            
+            return flowerContainer;
+        }
+        
+        function addDecorativeElements() {
+            const pookalamContainer = document.getElementById('pookalamContainer');
+            
+            // Add some decorative flowers around the edges
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30) * (Math.PI / 180);
+                const radius = 180;
+                const centerX = 200;
+                const centerY = 200;
+                
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                const decorativeFlower = createFlower(x, y, '#ff6b6b', 25);
+                decorativeFlower.style.opacity = '0';
+                decorativeFlower.style.transition = 'opacity 0.5s ease';
+                
+                pookalamContainer.appendChild(decorativeFlower);
+                
+                setTimeout(() => {
+                    decorativeFlower.style.opacity = '0.8';
+                }, i * 100 + 500);
+            }
+        }
+    </script>
+</body>
+</html>
